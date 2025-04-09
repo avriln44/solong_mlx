@@ -1,0 +1,12 @@
+
+no player
+many players
+no collectibles
+no exit
+not rectangular map
+P is wrapped by 1
+collectables wrapped by 1
+exit wrapped by 1
+- too big || too small map?
+empty map
+more space than needed == more unnecessary lines ?
