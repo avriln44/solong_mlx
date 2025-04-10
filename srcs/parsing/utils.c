@@ -12,23 +12,6 @@
 
 #include "so_long.h"
 
-void	flood_fill(char **map, int x, int y, t_path *path)
-{
-    if (y < 0 || x < 0 || map[y] == NULL || map[y][x] == '\0')
-        return;
-    if (map[y][x] == '1' || map[y][x] == 'V')
-        return;
-    if (map[y][x] == 'C')
-        path->collected++;
-    else if (map[y][x] == 'E')
-        path->exit_found = 1;
-    map[y][x] = 'V';
-    flood_fill(map, x + 1, y, path);
-    flood_fill(map, x - 1, y, path);
-    flood_fill(map, x, y + 1, path);
-    flood_fill(map, x, y - 1, path);
-}
-
 char	**ft_copy_2d(char **map)
 {
     int		i;
@@ -73,4 +56,60 @@ void ft_free_2d(void **arr)
         i++;
     }
     free(arr);
+}
+
+void	count_objects(t_map *map)
+{
+    int i;
+    int j;
+
+    i = 0;
+    while (map->game_map[i])
+    {
+        j = 0;
+        while (map->game_map[i][j])
+        {
+            if (map->game_map[i][j] == '0')
+                map->space++;
+            else if (map->game_map[i][j] == 'E')
+                map->exit++;
+            else if (map->game_map[i][j] == 'C')
+                map->collect++;
+            else if (map->game_map[i][j] == 'P')
+            {
+                map->player++;
+                map->start.row = i;
+                map->start.col = j;
+            }
+            else if (map->game_map[i][j] != '1')
+                game_map_error(0, "Error:\nInvalid character in map\n", map);
+            j++;
+        }
+        i++;
+    }
+}
+
+void	exit_solong(t_solong *solong, int32_t stt)
+{
+	int32_t	index;
+
+	if (!solong)
+		exit(stt);
+	if (solong->map && solong->map->game_map)
+		ft_free_2d((void **)solong->map->game_map);
+
+	if (solong->image)
+	{
+		index = 0;
+		while (index < IMG_TYPE)
+		{
+			if (solong->image[index])
+				mlx_delete_image(solong->mlx, solong->image[index]);
+			index++;
+		}
+		free(solong->image);
+	}
+	if (solong->mlx)
+		mlx_terminate(solong->mlx);
+	exit(stt);
 }

@@ -8,9 +8,11 @@ MLX42_DIR 			:= ./library/MLX42
 LIBFT_DIR			:= ./library/libft
 GET_NEXT_LINE_DIR 	:= ./library/get_next_line
 
-MLX_FLAGS := -L$(MLX42_DIR)/build -lmlx42 -lglfw -ldl -lm -lGL
+
+MLX_FLAGS 		:= -L$(MLX42_DIR)/build -lmlx42 -lglfw -ldl -lm -framework OpenGL -framework Cocoa
 LIBFT			:= ${LIBFT_DIR}/libft.a
 GET_NEXT_LINE	:= ${GET_NEXT_LINE_DIR}/get_next_line.a
+
 
 INCLUDE 		:= -I ${LIBFT_DIR} -I ${GET_NEXT_LINE_DIR} -I ${MLX42_DIR} -I ./includes/
 

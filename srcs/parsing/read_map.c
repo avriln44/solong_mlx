@@ -55,47 +55,20 @@ static int	count_map_lines(char *filename)
     return (count);
 }
 
-static void	count_objects(t_map *map)
+static void allocate_map_memory(t_map *map, int map_lines)
 {
-    int i;
-    int j;
-
-    i = 0;
-    while (map->game_map[i])
-    {
-        j = 0;
-        while (map->game_map[i][j])
-        {
-            if (map->game_map[i][j] == 'P')
-                map->player++;
-            else if (map->game_map[i][j] == 'E')
-                map->exit++;
-            else if (map->game_map[i][j] == 'C')
-                map->collect++;
-            else if (map->game_map[i][j] == '0')
-                map->space++;
-            else if (map->game_map[i][j] != '1')
-                game_map_error(0, "Error:\nInvalid character in map\n", map);
-            j++;
-        }
-        i++;
-    }
-}
-
-static void allocate_map_memory(t_map *map, int map_size)
-{
-    map->game_map = (char **)malloc(sizeof(char *) * (map_size + 1));
+    map->game_map = (char **)malloc(sizeof(char *) * (map_lines + 1));
     if (!map->game_map)
         game_map_error(0, "Error:\nMemory allocation failed\n", map);
 }
 
-static void read_map_lines(t_map *map, int fd, int map_size)
+static void read_map_lines(t_map *map, int fd, int map_lines)
 {
     char *line;
     int i;
 
     i = 0;
-    while (i < map_size)
+    while (i < map_lines)
     {
         line = get_next_line(fd);
         if (!line)
@@ -107,23 +80,10 @@ static void read_map_lines(t_map *map, int fd, int map_size)
         }
         if (line[ft_strlen(line) - 1] == '\n')
             line[ft_strlen(line) - 1] = '\0';
-        // if (ft_strlen(line) == 0)
-        // {
-        //     free(line);
-        //     ft_free_2d((void **)map->game_map);
-        //     map_file_error(0, "Error:\nEmpty line in map\n", fd);
-        // }
         map->game_map[i] = ft_strdup(line);
         free(line);
         i++;
     }
-    // line = get_next_line(fd);
-    // if (line)
-    // {
-    //     free(line);
-    //     ft_free_2d((void **)map->game_map);
-    //     map_file_error(0, "Error:\nExtra content after map data\n", fd);
-    // }
     map->game_map[i] = NULL;
     map->width = i;
     map->length = ft_strlen(map->game_map[0]);
@@ -141,11 +101,9 @@ static int	has_newline(char *filename)
 	current_char = 0;
     fd = open(filename, O_RDONLY);
     if (fd == -1)
-        return 0;
+        return (0);
     while (read(fd, &current_char, 1) > 0)
-    {
         last_char = current_char;
-    }
     if (last_char == '\n')
         has_newline = 1;
     close(fd);
@@ -154,20 +112,20 @@ static int	has_newline(char *filename)
 
 void get_map(int fd, t_map *map)
 {
-    int map_size;
+    int map_lines;
 
     if (has_newline(map->file_name))
-        game_map_error(0, "Error:\nTrailing newline at end of map\n", map);
-    map_size = count_map_lines(map->file_name);
-    if (map_size == 0)
+        game_map_error(0, "Error:\nNewline at end of map!\n", map);
+    map_lines = count_map_lines(map->file_name);
+    if (map_lines == 0)
         game_map_error(0, "Error:\nEmpty map\n", map);
-    if (map_size == -1)
+    if (map_lines == -1)
         game_map_error(0, "Error:\nEmpty line between map data\n", map);
-    allocate_map_memory(map, map_size);
+    allocate_map_memory(map, map_lines);
     fd = open(map->file_name, O_RDONLY);
     if (fd == -1)
         game_map_error(0, "Error:\nCould not reopen map file\n", map);
-    read_map_lines(map, fd, map_size);
+    read_map_lines(map, fd, map_lines);
 	validate_map_shape(map->game_map);
     close(fd);
     count_objects(map);
@@ -178,7 +136,7 @@ void read_map(char *map_file, t_map *map)
     int32_t fd;
 
     map->file_name = map_file;
-    file_validation(map_file, &fd);
+    file_error(map_file, &fd);
     get_map(fd, map);
     map_validation(map);
 }

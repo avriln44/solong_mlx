@@ -12,6 +12,11 @@
 
 #include "so_long.h"
 
+static void	check_size(t_map *map)
+{
+	if (map->length > WINDOW_LENGTH || map->width > WINDOW_WIDTH)
+		map_error("Error:\nMap is too big for the window size!\n", map);
+}
 static void	check_rectangle(t_map *map)
 {
 	int		i;
@@ -69,8 +74,9 @@ static void	check_border(t_map *map)
 
 void	map_validation(t_map *map)
 {
+	check_rectangle(map);
 	check_border(map);
 	check_objects(map);
-	check_rectangle(map);
+	check_size(map);
 	check_path(map);
 }

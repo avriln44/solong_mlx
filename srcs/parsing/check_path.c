@@ -12,6 +12,23 @@
 
 #include "so_long.h"
 
+static void	flood_fill(char **map, int x, int y, t_path *path)
+{
+    if (y < 0 || x < 0 || map[y] == NULL || map[y][x] == '\0')
+        return;
+    if (map[y][x] == '1' || map[y][x] == 'V')
+        return;
+    if (map[y][x] == 'C')
+        path->collected++;
+    else if (map[y][x] == 'E')
+        path->exit_found = 1;
+    map[y][x] = 'V';
+    flood_fill(map, x + 1, y, path);
+    flood_fill(map, x - 1, y, path);
+    flood_fill(map, x, y + 1, path);
+    flood_fill(map, x, y - 1, path);
+}
+
 static void	find_player_position(char **map, int *x, int *y)
 {
     int i = 0, j;
@@ -41,7 +58,7 @@ void check_path(t_map *map)
 
 	copy = ft_copy_2d(map->game_map);
 	path.collected = 0;
-	path.total_collectibles= map->collect;
+	path.total_collectibles = map->collect;
 	path.exit_found = 0;
 	find_player_position(copy, &x, &y);
 	flood_fill(copy, x, y, &path);
